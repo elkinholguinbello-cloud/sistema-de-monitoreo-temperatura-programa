@@ -29,15 +29,15 @@ def enviar_email(temp):
         mensaje = MIMEMultipart()
         mensaje["From"] = EMAIL_REMITENTE
         mensaje["To"] = EMAIL_DESTINO
-        mensaje["Subject"] = "🚨 ALERTA DE TEMPERATURA CRÍTICA"
+        mensaje["Subject"] = " ALERTA DE TEMPERATURA CRÍTICA"
 
         cuerpo = f"""
-⚠ ALERTA DE TEMPERATURA ⚠
+ ALERTA DE TEMPERATURA 
 
 La temperatura ha superado el umbral crítico.
 
-🌡 Temperatura actual: {temp:.2f} °C
-⏱ Sistema de monitoreo automático
+ Temperatura actual: {temp:.2f} °C
+ Sistema de monitoreo automático
         """
 
         mensaje.attach(MIMEText(cuerpo, "plain"))
@@ -48,26 +48,26 @@ La temperatura ha superado el umbral crítico.
         servidor.send_message(mensaje)
         servidor.quit()
 
-        print("📧 Correo enviado correctamente")
+        print(" Correo enviado correctamente")
 
     except Exception as e:
-        print("❌ Error enviando email:", e)
+        print(" Error enviando email:", e)
 
 # ----------- FUNCIÓN TELEGRAM ----------------
 def enviar_telegram(temp):
     try:
-        mensaje = f"🚨 ALERTA DE TEMPERATURA\n🌡 {temp:.2f} °C\n⚠ Umbral superado"
+        mensaje = f" ALERTA DE TEMPERATURA\n🌡 {temp:.2f} °C\n⚠ Umbral superado"
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         data = {"chat_id": TELEGRAM_CHAT_ID, "text": mensaje}
 
         r = requests.post(url, data=data)
         if r.status_code == 200:
-            print("📲 Mensaje enviado por Telegram correctamente")
+            print(" Mensaje enviado por Telegram correctamente")
         else:
-            print(f"❌ Error enviando Telegram | Status: {r.status_code} | Response: {r.text}")
+            print(f" Error enviando Telegram | Status: {r.status_code} | Response: {r.text}")
 
     except Exception as e:
-        print("❌ Excepción enviando Telegram:", e)
+        print(" Excepción enviando Telegram:", e)
 
 # ----------- GRÁFICA EN TIEMPO REAL --------------
 plt.ion()
@@ -88,7 +88,7 @@ while True:
     temperaturas.append(temp)
     tiempos.append(tiempo)
 
-    print(f"⏱ {tiempo}s | 🌡 {temp:.2f} °C")
+    print(f" {tiempo}s |  {temp:.2f} °C")
 
     linea.set_xdata(tiempos)
     linea.set_ydata(temperaturas)
@@ -103,4 +103,5 @@ while True:
         alerta_enviada = True
 
     tiempo += INTERVALO
+
     time.sleep(INTERVALO)
