@@ -1,0 +1,106 @@
+import random
+import time
+import smtplib
+import requests
+import matplotlib.pyplot as plt
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+# ---------------- CONFIGURACIÓN ----------------
+UMBRAL_TEMPERATURA = 30
+INTERVALO = 2  # segundos
+
+# EMAIL (GMAIL)
+EMAIL_REMITENTE = "holguinelkin76@gmail.com"
+EMAIL_PASSWORD = "hdca eazf saor fgdr"  
+EMAIL_DESTINO = "holguinelkin76@gmail.com"
+
+# TELEGRAM
+TELEGRAM_TOKEN = "8563026211:AAEasU0zD9YVtgbqlaF213EDx-Wqlw0_EUI TOKEN"
+TELEGRAM_CHAT_ID = "TU 6474783497"
+# -----------------------------------------------
+
+temperaturas = []
+tiempos = []
+
+# ----------- FUNCIÓN EMAIL ----------------
+def enviar_email(temp):
+    try:
+        mensaje = MIMEMultipart()
+        mensaje["From"] = EMAIL_REMITENTE
+        mensaje["To"] = EMAIL_DESTINO
+        mensaje["Subject"] = "🚨 ALERTA DE TEMPERATURA CRÍTICA"
+
+        cuerpo = f"""
+⚠ ALERTA DE TEMPERATURA ⚠
+
+La temperatura ha superado el umbral crítico.
+
+🌡 Temperatura actual: {temp:.2f} °C
+⏱ Sistema de monitoreo automático
+        """
+
+        mensaje.attach(MIMEText(cuerpo, "plain"))
+
+        servidor = smtplib.SMTP("smtp.gmail.com", 587)
+        servidor.starttls()
+        servidor.login(EMAIL_REMITENTE, EMAIL_PASSWORD)
+        servidor.send_message(mensaje)
+        servidor.quit()
+
+        print("📧 Correo enviado correctamente")
+
+    except Exception as e:
+        print("❌ Error enviando email:", e)
+
+# ----------- FUNCIÓN TELEGRAM ----------------
+def enviar_telegram(temp):
+    try:
+        mensaje = f"🚨 ALERTA DE TEMPERATURA\n🌡 {temp:.2f} °C\n⚠ Umbral superado"
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        data = {"chat_id": TELEGRAM_CHAT_ID, "text": mensaje}
+
+        r = requests.post(url, data=data)
+        if r.status_code == 200:
+            print("📲 Mensaje enviado por Telegram correctamente")
+        else:
+            print(f"❌ Error enviando Telegram | Status: {r.status_code} | Response: {r.text}")
+
+    except Exception as e:
+        print("❌ Excepción enviando Telegram:", e)
+
+# ----------- GRÁFICA EN TIEMPO REAL --------------
+plt.ion()
+fig, ax = plt.subplots()
+linea, = ax.plot([], [], marker="o")
+
+ax.set_title("Monitoreo de Temperatura en Tiempo Real")
+ax.set_xlabel("Tiempo (s)")
+ax.set_ylabel("Temperatura (°C)")
+ax.set_ylim(15, 45)
+
+# ------------------ LOOP PRINCIPAL ----------------
+tiempo = 0
+alerta_enviada = False
+
+while True:
+    temp = random.uniform(20, 40)  # simulación de temperatura
+    temperaturas.append(temp)
+    tiempos.append(tiempo)
+
+    print(f"⏱ {tiempo}s | 🌡 {temp:.2f} °C")
+
+    linea.set_xdata(tiempos)
+    linea.set_ydata(temperaturas)
+    ax.set_xlim(0, max(20, tiempo))
+    plt.draw()
+    plt.pause(0.1)
+
+    # Envía alerta si supera el umbral
+    if temp > UMBRAL_TEMPERATURA and not alerta_enviada:
+        enviar_email(temp)
+        enviar_telegram(temp)
+        alerta_enviada = True
+
+    tiempo += INTERVALO
+    time.sleep(INTERVALO)
