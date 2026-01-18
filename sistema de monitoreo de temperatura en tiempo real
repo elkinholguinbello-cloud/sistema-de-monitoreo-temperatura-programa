@@ -32,7 +32,7 @@ def enviar_email(temp):
         mensaje["Subject"] = " ALERTA DE TEMPERATURA CRÍTICA"
 
         cuerpo = f"""
- ALERTA DE TEMPERATURA 
+  ALERTA DE TEMPERATURA  
 
 La temperatura ha superado el umbral crítico.
 
@@ -103,5 +103,4 @@ while True:
         alerta_enviada = True
 
     tiempo += INTERVALO
-
     time.sleep(INTERVALO)
